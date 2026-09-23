@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DASHBOARD REALISASI RUTIN PEMELIHARAAN GARDU INDUK - PLN UIT JBB</title>
+    <meta name="description" content="Dashboard Monitoring dan Pengambilan Keputusan Realisasi Rutin Pemeliharaan Gardu Induk PLN Unit Induk Transmisi Jawa Bagian Barat berbasis AI.">
+    
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom Enterprise Stylesheet -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- ==========================================================================
+             10. HEADER (SPEC.MD Section 10)
+             ========================================================================== -->
+        <header class="main-header">
+            <div class="header-left">
+                <div class="pln-corner-logo" title="PT PLN (Persero)">
+                    <svg class="pln-corner-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-label="Logo PLN">
+                        <rect x="0" y="0" width="120" height="120" fill="#F7D300"/>
+
+                        <path d="M13 55 C20 48, 30 43, 42 47 C53 50, 62 49, 72 44 C81 39, 90 39, 100 46" fill="none" stroke="#1CB7F1" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M12 72 C21 66, 32 63, 43 67 C56 72, 67 72, 78 66 C88 61, 98 61, 107 68" fill="none" stroke="#1CB7F1" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M60 18 L37 55 L51 55 L45 95 L84 52 L68 52 L75 18 Z" fill="#D9001A"/>
+                    </svg>
+                </div>
+
+                <div class="header-titles">
+                    <h1>
+                        PLN UIT JBB <span class="badge-pill">TRANSMISI</span>
+                    </h1>
+                    <p class="subtitle">DASHBOARD REALISASI RUTIN PEMELIHARAAN GARDU INDUK</p>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="last-update-box">
+                    <div class="label">Last Update</div>
+                    <div class="timestamp">
+                        <span class="pulse-dot"></span>
+                        <span id="header-timestamp">22 September 2026 | 11:00 WIB</span>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <button class="btn-header" id="btn-header-alert" title="Lihat Peringatan & Anomali Sistem">
+                        <span>🔔</span>
+                        <span>Alert</span>
+                        <span class="notification-count" id="header-alert-count" style="display: none;">0</span>
+                    </button>
+                    <button class="btn-header btn-ai" id="btn-header-ai" title="Buka Asisten Virtual AI Pemeliharaan">
+                        <span>🤖</span>
+                        <span>AI Assistant</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ==========================================================================
+             5. MAIN NAVIGATION (SPEC.MD Section 5)
+             ========================================================================== -->
+        <nav class="main-nav">
+            <ul class="nav-tabs">
+                <li class="nav-tab-item">
+                    <button class="nav-tab-btn" data-tab="overview">
+                        <span>📊 Overview</span>
+                    </button>
+                </li>
+                <li class="nav-tab-item">
+                    <button class="nav-tab-btn active" data-tab="realisasi">
+                        <span>⚡ Realisasi Rutin</span>
+                        <span class="nav-priority-badge">Utama</span>
+                    </button>
+                </li>
+                <li class="nav-tab-item">
+                    <button class="nav-tab-btn" data-tab="non-rutin">
+                        <span>🚨 Realisasi Non Rutin</span>
+                    </button>
+                </li>
+                <li class="nav-tab-item">
+                    <button class="nav-tab-btn" data-tab="analisis">
+                        <span>📈 Analisis Unit</span>
+                    </button>
+                </li>
+                <li class="nav-tab-item">
+                    <button class="nav-tab-btn" data-tab="jadwal-ulang">
+                        <span>⏳ Jadwal Ulang</span>
+                    </button>
+                </li>
+                <li class="nav-tab-item">
+                    <button class="nav-tab-btn" data-tab="laporan">
+                        <span>📑 Ketersediaan Laporan</span>
+                    </button>
+                </li>
+                <li class="nav-tab-item">
+                    <button class="nav-tab-btn" data-tab="personil">
+                        <span>👷 Personil HAR</span>
+                    </button>
+                </li>
+                <li class="nav-tab-item">
+                    <button class="nav-tab-btn" data-tab="ai-insight">
+                        <span>🧠 AI Strategic Insight</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- ==========================================================================
+             11. STICKY FILTER TOOLBAR (SPEC.MD Section 11)
+             ========================================================================== -->
+        <section class="filter-toolbar">
+            <div class="filter-grid">
+                <div class="filter-field">
+                    <label for="filter-periode">PERIODE</label>
+                    <select id="filter-periode" class="filter-select">
+                        <option value="ALL">Semua Bulan</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filter-upt">UPT</label>
+                    <select id="filter-upt" class="filter-select">
+                        <option value="ALL">Semua UPT</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filter-ultg">ULTG</label>
+                    <select id="filter-ultg" class="filter-select">
+                        <option value="ALL">Semua ULTG</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filter-lokasi">LOKASI (GI)</label>
+                    <select id="filter-lokasi" class="filter-select">
+                        <option value="ALL">Semua Gardu Induk</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filter-bay">BAY</label>
+                    <select id="filter-bay" class="filter-select">
+                        <option value="ALL">Semua Bay</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filter-jenis-bay">JENIS BAY</label>
+                    <select id="filter-jenis-bay" class="filter-select">
+                        <option value="ALL">Semua Jenis Bay</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filter-tegangan">TEGANGAN</label>
+                    <select id="filter-tegangan" class="filter-select">
+                        <option value="ALL">Semua Tegangan</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filter-status">STATUS</label>
+                    <select id="filter-status" class="filter-select">
+                        <option value="ALL">Semua Status</option>
+                        <option value="TERLAKSANA">TERLAKSANA</option>
+                        <option value="JADWAL ULANG">JADWAL ULANG</option>
+                        <option value="BELUM REALISASI">BELUM REALISASI</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filter-penanggung-jawab">PENANGGUNG JAWAB</label>
+                    <select id="filter-penanggung-jawab" class="filter-select">
+                        <option value="ALL">Semua PJ</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filter-pelaksana">PELAKSANA</label>
+                    <select id="filter-pelaksana" class="filter-select">
+                        <option value="ALL">Semua Pelaksana</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filter-ketersediaan-laporan">LAPORAN</label>
+                    <select id="filter-ketersediaan-laporan" class="filter-select">
+                        <option value="ALL">Semua Laptek</option>
+                        <option value="ADA">ADA</option>
+                        <option value="BELUM ADA">BELUM ADA</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="filter-field filter-actions">
+                    <button class="btn-filter-reset" id="btn-reset-filters" title="Reset Semua Filter ke Semula">
+                        ✕ Reset
+                    </button>
+                    <button class="btn-filter-refresh" id="btn-refresh-data" title="Muat Ulang Data">
+                        🔄 Refresh Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Filter Chips Display -->
+            <div class="active-filter-chips" id="active-filter-chips" style="display: none;">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             12. 8 KPI CARDS (SPEC.MD Section 12)
+             ========================================================================== -->
+        <section class="kpi-section">
+            <div class="kpi-grid">
+                <!-- KPI 1: TOTAL RENCANA -->
+                <div class="kpi-card kpi-rencana" data-filter-type="status" data-filter-val="ALL" title="Klik untuk menampilkan seluruh rencana pekerjaan">
+                    <div class="kpi-card-header">
+                        <span class="kpi-title">Total Rencana</span>
+                        <div class="kpi-icon">📋</div>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-rencana">0</span>
+                        <span class="kpi-unit">Bay</span>
+                    </div>
+                    <div class="kpi-subtext">Target Pemeliharaan 2026</div>
+                </div>
+
+                <!-- KPI 2: TOTAL REALISASI -->
+                <div class="kpi-card kpi-realisasi" data-filter-type="status" data-filter-val="TERLAKSANA" title="Klik untuk memfilter pekerjaan yang terlaksana">
+                    <div class="kpi-card-header">
+                        <span class="kpi-title">Total Realisasi</span>
+                        <div class="kpi-icon">⚡</div>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-realisasi">0</span>
+                        <span class="kpi-unit">Pekerjaan</span>
+                    </div>
+                    <div class="kpi-subtext" id="kpi-pct-sub">Terlaksana Lapangan</div>
+                </div>
+
+                <!-- KPI 3: % REALISASI -->
+                <div class="kpi-card kpi-pct" title="Rasio Capaian Realisasi terhadap Rencana">
+                    <div class="kpi-card-header">
+                        <span class="kpi-title">% Realisasi</span>
+                        <div class="kpi-icon">🎯</div>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-pct">0%</span>
+                    </div>
+                    <div class="kpi-subtext">Capaian Efektivitas HAR</div>
+                </div>
+
+                <!-- KPI 4: BELUM REALISASI -->
+                <div class="kpi-card kpi-belum" data-filter-type="status" data-filter-val="BELUM REALISASI" title="Klik untuk memfilter pekerjaan yang belum terlaksana">
+                    <div class="kpi-card-header">
+                        <span class="kpi-title">Belum Realisasi</span>
+                        <div class="kpi-icon">⏳</div>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-belum">0</span>
+                        <span class="kpi-unit">Bay</span>
+                    </div>
+                    <div class="kpi-subtext">Antrian Pelaksanaan</div>
+                </div>
+
+                <!-- KPI 5: JADWAL ULANG -->
+                <div class="kpi-card kpi-reschedule" data-filter-type="status" data-filter-val="JADWAL ULANG" title="Klik untuk memfilter pekerjaan jadwal ulang">
+                    <div class="kpi-card-header">
+                        <span class="kpi-title">Jadwal Ulang</span>
+                        <div class="kpi-icon">⚠️</div>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-jadwal-ulang">0</span>
+                        <span class="kpi-unit">Bay</span>
+                    </div>
+                    <div class="kpi-subtext">Reschedule / Sistem</div>
+                </div>
+
+                <!-- KPI 6: LAPORAN TERSEDIA -->
+                <div class="kpi-card kpi-laptek-ada" data-filter-type="ketersediaanLaporan" data-filter-val="ADA" title="Klik untuk memfilter pekerjaan dengan LAPTEK ada">
+                    <div class="kpi-card-header">
+                        <span class="kpi-title">Laporan Tersedia</span>
+                        <div class="kpi-icon">✅</div>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-laptek-ada">0</span>
+                        <span class="kpi-unit">Berkas</span>
+                    </div>
+                    <div class="kpi-subtext" id="kpi-laptek-sub">Kepatuhan LAPTEK</div>
+                </div>
+
+                <!-- KPI 7: LAPORAN BELUM TERSEDIA -->
+                <div class="kpi-card kpi-laptek-belum" data-filter-type="ketersediaanLaporan" data-filter-val="BELUM ADA" title="Klik untuk memfilter pekerjaan tanpa LAPTEK">
+                    <div class="kpi-card-header">
+                        <span class="kpi-title">Lap. Belum Ada</span>
+                        <div class="kpi-icon">📁</div>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-laptek-belum">0</span>
+                        <span class="kpi-unit">Tunggakan</span>
+                    </div>
+                    <div class="kpi-subtext">Perlu Verifikasi</div>
+                </div>
+
+                <!-- KPI 8: TOTAL PERSONIL -->
+                <div class="kpi-card kpi-personil" title="Total akumulasi alokasi personil pelaksana pemeliharaan">
+                    <div class="kpi-card-header">
+                        <span class="kpi-title">Total Personil</span>
+                        <div class="kpi-icon">👷</div>
+                    </div>
+                    <div class="kpi-value-row">
+                        <span class="kpi-value" id="kpi-personil">0</span>
+                        <span class="kpi-unit">Orang</span>
+                    </div>
+                    <div class="kpi-subtext" id="kpi-personil-sub">Rata-rata Regu/Bay</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             DASHBOARD TAB PANELS & VISUAL ANALYTICS
+             ========================================================================== -->
+        <main class="dashboard-content">
+
+            <!-- TAB 1: REALISASI PEMELIHARAAN (MAIN PRIORITY) -->
+            <div class="tab-pane active" id="tab-realisasi">
+                
+                <!-- Main Charts Row -->
+                <div class="charts-grid-2col">
+                    <!-- Chart 1: Rencana vs Realisasi Bulan (SPEC Section 13) -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>📅</span>
+                                <span>Rencana vs Realisasi per Bulan</span>
+                            </h3>
+                            <span class="dash-card-badge">Combo Bar + Line</span>
+                        </div>
+                        <div class="dash-card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-monthly-trend"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Realisasi Berdasarkan UPT (SPEC Section 14) -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>🏢</span>
+                                <span>Realisasi Berdasarkan UPT</span>
+                            </h3>
+                            <span class="dash-card-badge" title="Klik bar untuk filter UPT">Click to Filter</span>
+                        </div>
+                        <div class="dash-card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-upt-analytics"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Analytics Row -->
+                <div class="charts-grid-equal">
+                    <!-- Chart 3: Realisasi Berdasarkan ULTG (SPEC Section 15) -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>⚡</span>
+                                <span>Realisasi Berdasarkan ULTG (Top 12)</span>
+                            </h3>
+                            <span class="dash-card-badge">Komparasi Status</span>
+                        </div>
+                        <div class="dash-card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-ultg-analytics"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 4: Top Gardu Induk (SPEC Section 16) -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>📍</span>
+                                <span>Analisis Top 10 Gardu Induk Terbanyak</span>
+                            </h3>
+                            <span class="dash-card-badge">Capaian Lokasi</span>
+                        </div>
+                        <div class="dash-card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-top-gi"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Realisasi Durasi Pemeliharaan per Lokasi Row -->
+                <div class="charts-grid-equal" style="margin-top: 16px;">
+                    <!-- Chart: Realisasi Durasi Pemeliharaan per Lokasi -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>⏱️</span>
+                                <span>Realisasi Durasi Pemeliharaan per Gardu Induk (GI)</span>
+                            </h3>
+                            <span class="dash-card-badge" title="Rata-rata jam kerja per Gardu Induk">Mulai s.d. Selesai</span>
+                        </div>
+                        <div class="dash-card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-durasi-lokasi"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Highlight Durasi & Efisiensi Lokasi Card -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>🔍</span>
+                                <span>Ikhtisar Durasi & Kecepatan Manuver</span>
+                            </h3>
+                            <span class="dash-card-badge" style="background: rgba(16, 185, 129, 0.15); color: #34D399;">Metrik Efisiensi</span>
+                        </div>
+                        <div class="dash-card-body" id="durasi-insights-summary" style="display: flex; flex-direction: column; justify-content: space-around; gap: 10px;">
+                            <!-- Populated dynamically via app.js -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Data Table Section -->
+                <div class="dash-card" style="margin-top: 16px;">
+                    <div class="dash-card-header">
+                        <h3 class="dash-card-title">
+                            <span>📋</span>
+                            <span>Rincian Data Realisasi Pemeliharaan Gardu Induk</span>
+                        </h3>
+                        <div class="table-actions">
+                            <button class="btn-export" id="btn-export-csv" title="Unduh data terfilter ke format CSV">
+                                <span>📥</span>
+                                <span>Export CSV</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dash-card-body">
+                        <!-- Table Filter & Search Controls -->
+                        <div class="table-toolbar">
+                            <div class="table-search-box">
+                                <span class="table-search-icon">🔍</span>
+                                <input type="text" id="table-search-input" placeholder="Cari Gardu Induk, Bay, ULTG, alasan...">
+                            </div>
+                            <div class="table-stats-info" id="table-count-info">
+                                Menampilkan 0 pekerjaan
+                            </div>
+                        </div>
+
+                        <!-- Data Table Container -->
+                        <div class="table-responsive">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th data-sort="id">ID</th>
+                                        <th data-sort="UPT">UPT / ULTG</th>
+                                        <th data-sort="LOKASI">LOKASI (GI)</th>
+                                        <th data-sort="BAY">BAY & TEGANGAN</th>
+                                        <th data-sort="RENCANA">RENCANA</th>
+                                        <th data-sort="REALISASI">REALISASI</th>
+                                        <th data-sort="DURASI_MENIT">DURASI</th>
+                                        <th data-sort="STATUS">STATUS</th>
+                                        <th data-sort="KETERSEDIAAN_LAPORAN">LAPTEK</th>
+                                        <th data-sort="JUMLAH_PERSONIL" style="text-align: right;">PERSONIL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <!-- Populated via app.js -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="pagination-wrap">
+                            <div class="table-stats-info" id="page-indicator">
+                                Halaman 1 / 1
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="btn-page" id="btn-prev-page" disabled>← Sebelumnya</button>
+                                <button class="btn-page" id="btn-next-page">Selanjutnya →</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TAB: REALISASI NON RUTIN PEMELIHARAAN -->
+            <div class="tab-pane" id="tab-non-rutin">
+                <section class="non-routine-toolbar">
+                    <div class="non-routine-toolbar-header">
+                        <div>
+                            <h2 class="non-routine-title">🚨 Realisasi Non Rutin Pemeliharaan</h2>
+                            <p class="non-routine-description">Monitoring pekerjaan emergency/non-rutin berdasarkan snapshot worksheet <strong>NON RUTIN_EMERGENCY 2026</strong>.</p>
+                        </div>
+                        <div class="non-routine-source-actions">
+                            <span class="non-routine-source-meta" id="non-routine-source-meta">Memuat snapshot...</span>
+                            <a class="btn-export" id="btn-non-routine-source" href="#" target="_blank" rel="noopener noreferrer">🔗 Buka Sumber</a>
+                            <button class="btn-filter-refresh" id="btn-refresh-non-routine" type="button">🔄 Refresh Snapshot</button>
+                        </div>
+                    </div>
+                    <div class="non-routine-filter-grid">
+                        <div class="filter-field"><label for="non-filter-tahun">TAHUN</label><select id="non-filter-tahun" class="filter-select"><option value="ALL">Semua Tahun</option></select></div>
+                        <div class="filter-field"><label for="non-filter-bulan">BULAN</label><select id="non-filter-bulan" class="filter-select"><option value="ALL">Semua Bulan</option></select></div>
+                        <div class="filter-field"><label for="non-filter-upt">UPT</label><select id="non-filter-upt" class="filter-select"><option value="ALL">Semua UPT</option></select></div>
+                        <div class="filter-field"><label for="non-filter-ultg">ULTG</label><select id="non-filter-ultg" class="filter-select"><option value="ALL">Semua ULTG</option></select></div>
+                        <div class="filter-field"><label for="non-filter-lokasi">LOKASI</label><select id="non-filter-lokasi" class="filter-select"><option value="ALL">Semua Lokasi</option></select></div>
+                        <div class="filter-field"><label for="non-filter-padam">KATEGORI PADAM</label><select id="non-filter-padam" class="filter-select"><option value="ALL">Semua Kategori</option></select></div>
+                        <div class="filter-field"><label for="non-filter-sifat">SIFAT</label><select id="non-filter-sifat" class="filter-select"><option value="ALL">Semua Sifat</option></select></div>
+                        <div class="filter-field non-routine-filter-actions"><button class="btn-filter-reset" id="btn-reset-non-routine" type="button">✕ Reset</button></div>
+                    </div>
+                </section>
+
+                <section class="non-routine-kpi-grid" aria-label="Ringkasan non rutin">
+                    <div class="kpi-card kpi-rencana"><div class="kpi-card-header"><span class="kpi-title">Total Kejadian</span><div class="kpi-icon">🚨</div></div><div class="kpi-value-row"><span class="kpi-value" id="non-kpi-total">0</span><span class="kpi-unit">Kejadian</span></div><div class="kpi-subtext">Data non-rutin terfilter</div></div>
+                    <div class="kpi-card kpi-reschedule"><div class="kpi-card-header"><span class="kpi-title">Dengan Padam</span><div class="kpi-icon">⚡</div></div><div class="kpi-value-row"><span class="kpi-value" id="non-kpi-padam">0</span><span class="kpi-unit">Kejadian</span></div><div class="kpi-subtext">Peralatan memerlukan padam</div></div>
+                    <div class="kpi-card kpi-personil"><div class="kpi-card-header"><span class="kpi-title">Tanpa Padam</span><div class="kpi-icon">🛡️</div></div><div class="kpi-value-row"><span class="kpi-value" id="non-kpi-tanpa-padam">0</span><span class="kpi-unit">Kejadian</span></div><div class="kpi-subtext">Pekerjaan tanpa padam</div></div>
+                    <div class="kpi-card kpi-realisasi"><div class="kpi-card-header"><span class="kpi-title">Durasi Lengkap</span><div class="kpi-icon">⏱️</div></div><div class="kpi-value-row"><span class="kpi-value" id="non-kpi-complete">0</span><span class="kpi-unit">Kejadian</span></div><div class="kpi-subtext" id="non-kpi-duration">Rata-rata durasi -</div></div>
+                    <div class="kpi-card kpi-laptek-belum"><div class="kpi-card-header"><span class="kpi-title">Perlu Verifikasi</span><div class="kpi-icon">⚠️</div></div><div class="kpi-value-row"><span class="kpi-value" id="non-kpi-issues">0</span><span class="kpi-unit">Baris</span></div><div class="kpi-subtext" id="non-kpi-ref">Termasuk 0 error referensi</div></div>
+                </section>
+
+                <div class="charts-grid-2col">
+                    <div class="dash-card"><div class="dash-card-header"><h3 class="dash-card-title"><span>📅</span><span>Tren Kejadian Non Rutin</span></h3><span class="dash-card-badge">Berdasarkan Bulan</span></div><div class="dash-card-body"><div class="chart-wrapper"><canvas id="chart-non-routine-trend"></canvas></div></div></div>
+                    <div class="dash-card"><div class="dash-card-header"><h3 class="dash-card-title"><span>🏢</span><span>Distribusi Kejadian per UPT</span></h3><span class="dash-card-badge">Padam vs Tanpa Padam</span></div><div class="dash-card-body"><div class="chart-wrapper"><canvas id="chart-non-routine-upt"></canvas></div></div></div>
+                </div>
+
+                <div class="dash-card non-routine-table-card">
+                    <div class="dash-card-header"><h3 class="dash-card-title"><span>📋</span><span>Rincian Realisasi Non Rutin</span></h3><div class="table-actions"><button class="btn-export" id="btn-export-non-routine" type="button">📥 Export CSV</button></div></div>
+                    <div class="dash-card-body">
+                        <div class="table-toolbar"><div class="table-search-box"><span class="table-search-icon">🔍</span><input type="search" id="non-routine-search" placeholder="Cari lokasi, bay, uraian, peralatan..." aria-label="Cari data non rutin"></div><div class="table-stats-info" id="non-routine-count-info">Menampilkan 0 kejadian</div></div>
+                        <div class="table-responsive"><table class="dash-table non-routine-table"><thead><tr><th data-non-sort="NO">NO.</th><th data-non-sort="UPT">UPT / ULTG</th><th data-non-sort="LOKASI">LOKASI / BAY</th><th data-non-sort="URAIAN_PEKERJAAN">URAIAN PEKERJAAN</th><th data-non-sort="KATEGORI_PADAM">PADAM</th><th data-non-sort="SIFAT">SIFAT</th><th data-non-sort="TANGGAL_SORT">WAKTU MULAI</th><th data-non-sort="DURASI_MENIT">DURASI</th><th>DATA</th></tr></thead><tbody id="non-routine-table-body"></tbody></table></div>
+                        <div class="pagination-wrap"><div class="table-stats-info" id="non-routine-page-indicator">Halaman 1 / 1</div><div class="pagination-controls"><button class="btn-page" id="btn-non-prev-page" type="button" disabled>← Sebelumnya</button><button class="btn-page" id="btn-non-next-page" type="button" disabled>Selanjutnya →</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: OVERVIEW -->
+            <div class="tab-pane" id="tab-overview">
+                <div class="ai-insight-hub">
+                    <div class="dash-card" style="margin-bottom: 16px;">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>🛡️</span>
+                                <span>Status Pemeliharaan Sistem Transmisi Jawa Bagian Barat</span>
+                            </h3>
+                            <span class="dash-card-badge">6 UPT Operasional</span>
+                        </div>
+                        <div class="dash-card-body">
+                            <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 13px;">
+                                Monitoring terpadu realisasi rutin pemeliharaan bay transmisi 500 kV, 150 kV, dan 20 kV di wilayah kerja PLN UIT JBB: UPT Cawang, UPT Cikupa, UPT Cilegon, UPT Duri Kosambi, UPT Gandul, dan UPT Pulogadung.
+                            </p>
+                            <div class="anomaly-grid" id="overview-upt-summary-grid">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: ANALISIS -->
+            <div class="tab-pane" id="tab-analisis">
+                <div class="charts-grid-equal">
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>⚡</span>
+                                <span>Distribusi Pekerjaan per Jenis Bay</span>
+                            </h3>
+                        </div>
+                        <div class="dash-card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-personil-bay"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>📊</span>
+                                <span>Kepatuhan Dokumen LAPTEK per UPT</span>
+                            </h3>
+                        </div>
+                        <div class="dash-card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-laporan-compliance"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: JADWAL ULANG -->
+            <div class="tab-pane" id="tab-jadwal-ulang">
+                <div class="charts-grid-2col">
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>⏳</span>
+                                <span>Analisis Faktor Penyebab Jadwal Ulang</span>
+                            </h3>
+                            <span class="dash-card-badge">Pareto & Donut</span>
+                        </div>
+                        <div class="dash-card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-reschedule-causes"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3 class="dash-card-title">
+                                <span>ℹ️</span>
+                                <span>Karakteristik Reschedule</span>
+                            </h3>
+                        </div>
+                        <div class="dash-card-body" style="color: var(--text-secondary); line-height: 1.6;">
+                            <h4 style="color: var(--pln-cyan); margin-bottom: 8px;">1. Uncontrollable (Dominan)</h4>
+                            <p style="margin-bottom: 12px; font-size: 12.5px;">
+                                Penolakan/penundaan izin padam dari P2B / APD dikarenakan kondisi kontingensi subsistem, beban tinggi, atau transmisi yang tidak dapat dipadamkan bersamaan dengan subsistem lain.
+                            </p>
+                            <h4 style="color: var(--pln-yellow); margin-bottom: 8px;">2. Emergency Overlap</h4>
+                            <p style="margin-bottom: 12px; font-size: 12.5px;">
+                                Pengalihan regu personil pemeliharaan untuk penanganan gangguan darurat (seperti investigasi tap changer trafo atau perbaikan kebocoran gas SF6).
+                            </p>
+                            <h4 style="color: var(--pln-emerald); margin-bottom: 8px;">3. Efisiensi & Normalisasi</h4>
+                            <p style="font-size: 12.5px;">
+                                Penataan ulang jadwal pemeliharaan agar digabungkan (ROH/ROB/ROT) untuk menekan frekuensi manuver pemadaman gardu induk.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: LAPORAN -->
+            <div class="tab-pane" id="tab-laporan">
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h3 class="dash-card-title">
+                            <span>📑</span>
+                            <span>Monitoring Kepatuhan Dokumen Laporan Teknis (LAPTEK)</span>
+                        </h3>
+                    </div>
+                    <div class="dash-card-body">
+                        <p style="color: var(--text-secondary); font-size: 12.5px; margin-bottom: 16px;">
+                            Standar operasional mewajibkan laporan teknis (LAPTEK Harpro & Har GI) diunggah segera setelah pekerjaan selesai untuk audit keandalan aset transmisi.
+                        </p>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-laporan-compliance-tab"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: PERSONIL -->
+            <div class="tab-pane" id="tab-personil">
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h3 class="dash-card-title">
+                            <span>👷</span>
+                            <span>Alokasi dan Produktivitas Personil Pemeliharaan</span>
+                        </h3>
+                    </div>
+                    <div class="dash-card-body">
+                        <p style="color: var(--text-secondary); font-size: 12.5px; margin-bottom: 16px;">
+                            Alokasi regu pelaksana HAR GI dan HAR PROM per jenis bay pemeliharaan (tidak termasuk pengawas dan TAD).
+                        </p>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-personil-bay-tab"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 7: AI INSIGHT (SPEC.MD AI ANALYSIS & ANOMALY DETECTION) -->
+            <div class="tab-pane" id="tab-ai-insight">
+                <div class="ai-insight-hub">
+                    <!-- AI Executive Strategic Briefing Card -->
+                    <div class="ai-briefing-card">
+                        <div class="ai-briefing-header">
+                            <div class="ai-title-wrap">
+                                <div class="ai-avatar">🤖</div>
+                                <div>
+                                    <h2>AI Strategic Briefing & Decision Support</h2>
+                                    <div class="ai-model-tag">
+                                        <span class="pulse-dot"></span>
+                                        <span>Model: Mesin Insight Lokal</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn-filter-refresh" id="btn-refresh-ai" style="padding: 8px 16px;">
+                                ⚡ Generate New AI Briefing
+                            </button>
+                        </div>
+                        <div class="ai-content-box" id="ai-briefing-content">
+                            <!-- Populated dynamically by AiService -->
+                        </div>
+                    </div>
+
+                    <!-- Anomaly Detection & Early Warning Grid -->
+                    <div style="margin-top: 20px;">
+                        <h3 style="color: #FFFFFF; font-family: var(--font-heading); font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <span>⚠️</span>
+                            <span>Deteksi Anomali & Sistem Peringatan Dini (Early Warning)</span>
+                        </h3>
+                        <div class="anomaly-grid" id="anomaly-cards-container">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ==========================================================================
+             AI ASSISTANT DRAWER (Interactive Chat for Management)
+             ========================================================================== -->
+        <div class="ai-drawer-overlay" id="ai-drawer-overlay"></div>
+        <aside class="ai-drawer" id="ai-assistant-drawer">
+            <div class="ai-drawer-header">
+                <div class="ai-drawer-header-left">
+                    <div class="ai-avatar" style="width: 32px; height: 32px; font-size: 15px;">🤖</div>
+                    <div>
+                        <h3 class="ai-drawer-title">PLN AI Assistant</h3>
+                        <span style="font-size: 10px; color: var(--pln-cyan);">Decision Support Copilot</span>
+                    </div>
+                </div>
+                <button class="btn-close-drawer" id="btn-close-drawer">✕</button>
+            </div>
+
+            <div class="ai-messages-container" id="ai-messages-container">
+                <div class="chat-bubble ai">
+                    <strong>Halo! Saya AI Assistant Pemeliharaan Transmisi PLN UIT JBB.</strong><br>
+                    Saya siap menjawab pertanyaan analisis realisasi, perbandingan performa UPT, penyebab jadwal ulang, ketersediaan LAPTEK, atau kebutuhan personil.
+                </div>
+            </div>
+
+            <!-- Quick Question Chips -->
+            <div class="quick-prompts-wrap">
+                <button class="quick-chip">💡 Evaluasi capaian UPT terendah</button>
+                <button class="quick-chip">💡 Analisis penyebab reschedule terbanyak</button>
+                <button class="quick-chip">💡 Status kepatuhan laporan LAPTEK</button>
+                <button class="quick-chip">💡 Rasio kecukupan personil HAR</button>
+            </div>
+
+            <div class="ai-drawer-input-row">
+                <input type="text" id="ai-chat-input" placeholder="Tanyakan apa saja seputar data pemeliharaan...">
+                <button class="btn-send-ai" id="btn-send-ai-chat">Kirim</button>
+            </div>
+        </aside>
+
+        <!-- ==========================================================================
+             DETAIL RECORD MODAL (16 Columns of SPEC.MD Section 7 & 8)
+             ========================================================================== -->
+        <div class="modal-overlay" id="detail-modal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">⚡</span>
+                        <div>
+                            <h3 class="modal-title">Detail Realisasi Pemeliharaan</h3>
+                            <span style="font-size: 11px; color: var(--pln-cyan);" id="modal-id">HAR-00001</span>
+                        </div>
+                    </div>
+                    <button class="btn-close-drawer" id="btn-close-modal">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">1. UPT</span>
+                            <span class="detail-value" id="modal-upt">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">2. ULTG</span>
+                            <span class="detail-value" id="modal-ultg">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">3. LOKASI (GARDU INDUK)</span>
+                            <span class="detail-value" id="modal-lokasi">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">4. BAY</span>
+                            <span class="detail-value" id="modal-bay">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">5. JENIS BAY</span>
+                            <span class="detail-value" id="modal-jenis-bay">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">6. TEGANGAN</span>
+                            <span class="detail-value" id="modal-tegangan">-</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <span class="detail-label">7. URAIAN PEKERJAAN</span>
+                            <span class="detail-value" id="modal-uraian">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">8. PENANGGUNG JAWAB</span>
+                            <span class="detail-value" id="modal-pj">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">9. PELAKSANA</span>
+                            <span class="detail-value" id="modal-pelaksana">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">10. RENCANA PELAKSANAAN</span>
+                            <span class="detail-value" id="modal-rencana">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">11. STATUS</span>
+                            <span class="detail-value" id="modal-status">-</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <span class="detail-label">12. PENYEBAB JADWAL ULANG</span>
+                            <span class="detail-value" id="modal-penyebab">-</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <span class="detail-label">13. KETERANGAN & CATATAN ABK</span>
+                            <span class="detail-value" id="modal-keterangan">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">14. REALISASI PELAKSANAAN</span>
+                            <span class="detail-value" id="modal-realisasi">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">REALISASI MULAI S.D. SELESAI PEKERJAAN</span>
+                            <span class="detail-value" id="modal-waktu-kerja">-</span>
+                        </div>
+                        <div class="detail-item full-width" style="background: rgba(0, 163, 224, 0.08); border-color: rgba(0, 163, 224, 0.3);">
+                            <span class="detail-label" style="color: var(--pln-cyan);">⏱️ REALISASI DURASI PEMELIHARAAN (HASIL HITUNG)</span>
+                            <span class="detail-value" id="modal-durasi" style="color: var(--pln-yellow); font-size: 14px;">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">15. KETERSEDIAAN LAPORAN (LAPTEK)</span>
+                            <span class="detail-value" id="modal-laporan">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">16. JUMLAH PERSONIL PELAKSANA</span>
+                            <span class="detail-value" id="modal-personil">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <div class="footer-left">
+                <strong>PLN UIT JBB</strong> &copy; 2026 Dashboard Pemeliharaan Rutin Gardu Induk &bull; Enterprise Decision Support System
+            </div>
+            <div class="footer-right">
+                Status Sistem: <span style="color: var(--pln-emerald); font-weight: 700;">ONLINE</span> &bull; AI Insight Lokal: <span style="color: var(--pln-cyan); font-weight: 700;">READY</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Scripts -->
+    <!-- Offline & CDN Fallback for Chart.js -->
+    <script src="js/chart.umd.min.js"></script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"><\/script>');
+        }
+    </script>
+    <!-- Maintenance Data Bundles (guarantee file:/// compatibility) -->
+    <script src="data/maintenance_data.js"></script>
+    <script src="data/non_routine_data.js"></script>
+    <!-- Services & Application Logic -->
+    <script src="services/MaintenanceDataService.js"></script>
+    <script src="services/NonRoutineDataService.js"></script>
+    <script src="services/AiService.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
